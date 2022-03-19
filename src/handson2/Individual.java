@@ -63,19 +63,47 @@ public final class Individual {
     }
     void crossOver(Individual parent1, Individual parent2)
     {
-        String aBinaryp1 = Integer.toBinaryString(parent1.getA());
-        String aBinaryp2 = Integer.toBinaryString(parent2.getA());
-        String bBinaryp1 = Integer.toBinaryString(parent1.getB());
-        String bBinaryp2 = Integer.toBinaryString(parent2.getB());
+        String[] aBinary = {Integer.toBinaryString(parent1.getA()), Integer.toBinaryString(parent2.getA())};
+        String[] bBinary = {Integer.toBinaryString(parent1.getB()), Integer.toBinaryString(parent2.getB())};
+        aBinary=fillUpString(aBinary);
+        bBinary=fillUpString(bBinary);
         String aChildren;
         String bChildren;
-        int crossoverpoint = ThreadLocalRandom.current().nextInt(0, aBinaryp1.length() + 1);
-        aChildren = aBinaryp1.substring(0, crossoverpoint) + aBinaryp2.substring(crossoverpoint);
-        crossoverpoint = ThreadLocalRandom.current().nextInt(0, bBinaryp1.length() + 1);
-        bChildren = bBinaryp1.substring(0, crossoverpoint) + bBinaryp2.substring(crossoverpoint);
+
+        int crossoverpoint = ThreadLocalRandom.current().nextInt(0, aBinary[0].length() + 1);
+        aChildren = aBinary[0].substring(0, crossoverpoint) + aBinary[1].substring(crossoverpoint);
+        crossoverpoint = ThreadLocalRandom.current().nextInt(0, bBinary[0].length() + 1);
+        bChildren = bBinary[0].substring(0, crossoverpoint) + bBinary[1].substring(crossoverpoint);
         a=Integer.parseInt(aChildren, 2);
         b=Integer.parseInt(bChildren, 2);
         selectFitness();
+    }
+    
+    String[] fillUpString(String [] strings)
+    {
+        if(strings[0].length()==strings[1].length())
+            return strings;
+        if(strings[0].length()>strings[1].length())
+        {
+            String s="";
+            for(int i= 0; i<strings[0].length()-strings[1].length(); i++)
+            {
+                s+="0";
+            }
+            s+=strings[1];
+            strings[1]=s;
+            return strings;
+        }
+        else{
+            String s="";
+            for(int i= 0; i<strings[1].length()-strings[0].length(); i++)
+            {
+                s+="0";
+            }
+            s+=strings[0];
+            strings[0]=s;
+            return strings;
+        }
     }
     /*String mutation(int mutationRate)
     {
