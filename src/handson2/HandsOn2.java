@@ -38,7 +38,7 @@ public class HandsOn2 {
         p.printPopulaton();
         for(int i=0; i<50; i++)
         {
-            p.produceNewPopulation(75);
+            p.produceNewPopulation(40, 50, 3);
             p.printPopulaton();
         }
     }

@@ -74,22 +74,65 @@ public final class Population {
         probabilities= prob;
         return prob;
     }
-    Individual[] produceNewPopulation(int crossoverRate)
+    Individual[] produceNewPopulation(int crossoverRate, int mutationRate, int elitism)
     {
+        SelectElitism(elitism);
         Individual[] newPopulation = population;
         //int[] p = getProbabilities(fitness(population));
         for(int i=0; i<population.length; i++)
         {
-            if(crossoverRate>ThreadLocalRandom.current().nextInt(0, 100 + 1))
-            {
-                Individual secondParent = selectParent();
-                newPopulation[i].crossOver(newPopulation[i], secondParent);
-            }
+            if(!population[i].elitism)
+                if(crossoverRate>ThreadLocalRandom.current().nextInt(0, 100 + 1))
+                {
+                    Individual secondParent = selectParent();
+                    newPopulation[i].crossOver(newPopulation[i], secondParent, mutationRate);
+                }
+            else
+                population[i].setElitism(false);
         }
         population=newPopulation;
         getProbabilities();
         generation++;
         return newPopulation;
         
+    }
+    int[] SelectElitism(int elitism)
+    {
+        int[] elitismIndex = new int[elitism];
+        int cont=0;
+        for(int i=0; i<elitismIndex.length; i++)
+        {
+            int optimal=0;
+            for(int k=0; k<population.length; k++)
+            {
+                boolean added=false;
+                for(int in:elitismIndex)
+                {
+                    if(in==k)
+                        added=true;
+                }
+                if(!added)
+                    if(population[k].getFitness()<population[optimal].getFitness())
+                        optimal=k;
+                /*if(population[k].getFitness()<population[optimal].getFitness())
+                {
+                    alreadyIncluded= false;
+                    for(int j=0; j<cont; j++)
+                    {
+                        if(elitismIndex[j]==k)
+                            alreadyIncluded = true;
+                    }
+                    if(!alreadyIncluded)
+                    {
+                        optimal=k;
+                    }
+                }*/
+            }
+            elitismIndex[i]=optimal;
+            cont++;
+        }
+        for(int i=0; i<elitismIndex.length; i++)
+            System.out.println("Elitism: "+elitismIndex[i]);
+        return elitismIndex;
     }
 }
