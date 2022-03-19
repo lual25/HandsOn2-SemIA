@@ -10,54 +10,74 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Luis
  */
 public final class Individual {
-    String individual=randomGen();
+    int a;
+    int b;
+    int[][] info = {{23, 661}, {26, 661}, {30, 661},{34, 661},{43, 661},{48, 661},{52, 661},{57, 661},{58, 661}};
     int fitness;
     Individual()
     {
-        individual=randomGen();
+        a=randomGen();
+        b=randomGen();
         selectFitness();
     }
     String getIndividual()
     {
-        return individual;
+        return "dsa";
     }
-    String randomGen()
+    int getA()
     {
-        String object = "";
-        for(int i=0; i<10; i++)
-        {
-            object+= String.valueOf(ThreadLocalRandom.current().nextInt(0, 1 + 1)); 
-        }
-        return object;
+        return a;
+    }
+    int getB()
+    {
+        return a;
+    }
+    int randomGen()
+    {
+        return ThreadLocalRandom.current().nextInt(0, 1000 + 1); 
+
     }
     void printIndividual()
     {
-        System.out.println(individual+" Fitness: "+fitness);
+        System.out.println("a= "+a+" b= "+b+" Fitness: "+fitness);
     }
     int selectFitness()
     {
-        fitness = 0;
-            for(int j=0; j<individual.length(); j++)
-                if(individual.charAt(j) == '1')
-                {
-                    fitness++;
-                }
-            return fitness;
+        int sum = 0;
+        for(int i=0; i<info.length; i++)
+        {
+                int x=info[i][0];
+                int y=info[i][1];
+                int y1=a+(b*x);
+                int dif = y1-y;
+                if(dif<0)
+                    dif=dif*(-1);
+                sum+=dif;
+        }
+        fitness=sum;
+        return sum;
     }
     int getFitness()
     {
         return fitness;
     }
-    String crossOver(Individual parent1, Individual parent2)
+    void crossOver(Individual parent1, Individual parent2)
     {
-        String children;
-        int crossoverpoint = ThreadLocalRandom.current().nextInt(0, parent1.getIndividual().length() + 1);
-        children = parent1.getIndividual().substring(0, crossoverpoint) + parent2.getIndividual().substring(crossoverpoint);
-        individual = children;
+        String aBinaryp1 = Integer.toBinaryString(parent1.getA());
+        String aBinaryp2 = Integer.toBinaryString(parent2.getA());
+        String bBinaryp1 = Integer.toBinaryString(parent1.getB());
+        String bBinaryp2 = Integer.toBinaryString(parent2.getB());
+        String aChildren;
+        String bChildren;
+        int crossoverpoint = ThreadLocalRandom.current().nextInt(0, aBinaryp1.length() + 1);
+        aChildren = aBinaryp1.substring(0, crossoverpoint) + aBinaryp2.substring(crossoverpoint);
+        crossoverpoint = ThreadLocalRandom.current().nextInt(0, bBinaryp1.length() + 1);
+        bChildren = bBinaryp1.substring(0, crossoverpoint) + bBinaryp2.substring(crossoverpoint);
+        a=Integer.parseInt(aChildren, 2);
+        b=Integer.parseInt(bChildren, 2);
         selectFitness();
-        return children;
     }
-    String mutation(int mutationRate)
+    /*String mutation(int mutationRate)
     {
         StringBuilder aux = new StringBuilder(individual);
         for(int i=0; i<aux.length(); i++)
@@ -74,5 +94,5 @@ public final class Individual {
             }
         }
         return aux.toString();
-    }
+    }*/
 }

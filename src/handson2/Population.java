@@ -29,11 +29,11 @@ public final class Population {
     void printPopulaton()
     {
         System.out.println("Gen: "+generation+" Global Fitness: "+totalFitness);
-        //int i=0;
+        int i=0;
         for (Individual population1 : population) {
             population1.printIndividual();
-            //System.out.println(probabilities[i]);
-            //i++;
+            System.out.println(probabilities[i]);
+            i++;
         }
         selectParent().printIndividual();
     }

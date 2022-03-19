@@ -36,11 +36,11 @@ public class HandsOn2 {
         }*/
         Population p = new Population(10);
         p.printPopulaton();
-        for(int i=0; i<50; i++)
+        /*for(int i=0; i<50; i++)
         {
             p.produceNewPopulation(50);
             p.printPopulaton();
-        }
+        }*/
     }
     static String[]  produceInitialRandomPopulation(int populationSize, int elitismValue, float crossoverRate, float mutationRate)
     {
