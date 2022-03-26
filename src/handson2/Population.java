@@ -12,36 +12,42 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Luis
  */
 public final class Population {
-    Individual[] population = new Individual[10];
-    int[] probabilities = new int[10];
     int populationSize;
+    Individual[] population = new Individual[populationSize];
+    int[] probabilities = new int[population.length];
     int totalFitness;
     int generation=0;
     Population(int populationSize)
     {
+        population= new Individual[populationSize];
+        int[] probabilities = new int[populationSize];
         this.populationSize = populationSize;
         for(int i=0; i<populationSize; i++)
         {
             population[i] = new Individual();
         }
+        selectGlobalFitness();
         getProbabilities();
     }
     void printPopulaton()
     {
-        System.out.println("Gen: "+generation+" Global Fitness: "+totalFitness);
+        System.out.println("-------Gen: "+generation+" Global Fitness: "+totalFitness+"---------");
         //int i=0;
         for (Individual population1 : population) {
             population1.printIndividual();
             //System.out.println(probabilities[i]);
             //i++;
         }
+        System.out.println("Parents: ");
+        selectParent().printIndividual();
         selectParent().printIndividual();
     }
     int selectGlobalFitness()
     {
         totalFitness=0;
-        for (Individual population1 : population) {
-            totalFitness += population1.getFitness();
+        for (int i=0; i<population.length; i++) {
+            //System.out.println("totalfitness: "+totalFitness+"+=population "+population[i].getFitness());
+            totalFitness += population[i].getFitness();
         }
         
         return totalFitness;
@@ -65,9 +71,10 @@ public final class Population {
         int[] prob = new int[population.length];
         int q=0;
         int p;
+        int sum = sumaFitnessGlobalFitness(population);
         for(int i= 0; i<population.length; i++)
         {
-            p = 1-((population[i].getFitness())/selectGlobalFitness());
+            p = ((totalFitness - population[i].getFitness())*100)/sum;
             q+=p;
             prob[i]=q;
         }
@@ -76,63 +83,83 @@ public final class Population {
     }
     Individual[] produceNewPopulation(int crossoverRate, int mutationRate, int elitism)
     {
-        SelectElitism(elitism);
         Individual[] newPopulation = population;
         //int[] p = getProbabilities(fitness(population));
         for(int i=0; i<population.length; i++)
         {
             if(!population[i].elitism)
+            {
                 if(crossoverRate>ThreadLocalRandom.current().nextInt(0, 100 + 1))
                 {
                     Individual secondParent = selectParent();
-                    newPopulation[i].crossOver(newPopulation[i], secondParent, mutationRate);
+                    newPopulation[i].crossOver(secondParent, mutationRate);
                 }
+                if(25>ThreadLocalRandom.current().nextInt(0, 100 + 1))
+                {
+                    newPopulation[i].mutation();
+                }
+            }
             else
                 population[i].setElitism(false);
         }
-        population=newPopulation;
-        getProbabilities();
         generation++;
+        population=newPopulation;
+        selectGlobalFitness();
+        getProbabilities();
+        SelectElitism(elitism);
         return newPopulation;
         
     }
-    int[] SelectElitism(int elitism)
+    void SelectElitism(int elitism)
     {
-        int[] elitismIndex = new int[elitism];
-        int cont=0;
-        for(int i=0; i<elitismIndex.length; i++)
+        for(int i=0; i<elitism; i++)
         {
-            int optimal=0;
-            for(int k=0; k<population.length; k++)
+            int lowest = 0;
+            for(int j=0; j<population.length; j++)
             {
-                boolean added=false;
-                for(int in:elitismIndex)
-                {
-                    if(in==k)
-                        added=true;
-                }
-                if(!added)
-                    if(population[k].getFitness()<population[optimal].getFitness())
-                        optimal=k;
-                /*if(population[k].getFitness()<population[optimal].getFitness())
-                {
-                    alreadyIncluded= false;
-                    for(int j=0; j<cont; j++)
-                    {
-                        if(elitismIndex[j]==k)
-                            alreadyIncluded = true;
-                    }
-                    if(!alreadyIncluded)
-                    {
-                        optimal=k;
-                    }
-                }*/
+                if(population[j].getFitness()<population[lowest].getFitness())
+                    if(!population[j].elitism)
+                        lowest = j;
             }
-            elitismIndex[i]=optimal;
-            cont++;
+            population[lowest].elitism=true;
         }
-        for(int i=0; i<elitismIndex.length; i++)
-            System.out.println("Elitism: "+elitismIndex[i]);
-        return elitismIndex;
+    }
+        int sumaFitnessGlobalFitness(Individual[] vector)
+    {
+        int[] resta = new int[vector.length];
+        int res = 0;
+        for (int i=0; i<vector.length; i++) {
+            resta[i] = totalFitness - vector[i].getFitness();
+        }
+        for( int i=0; i<resta.length; i++)
+        {
+            res=res+resta[i];
+        }
+        return res;
+    }
+    void print(float[] array)
+    {
+        for(double num:array)
+        {
+            System.out.println("Prob: "+num);
+        }
+    }
+    Boolean checkOptimal(int error)
+    {
+        for(Individual i: population)
+        {
+            if(i.getFitness()<=error)
+                return true;
+        }
+        return false;
+    }
+    Individual getOptimal(int error)
+    {
+        for(Individual i: population)
+        {
+            if(i.getFitness()<=error)
+                return i;
+        }
+        return null;
     }
 }

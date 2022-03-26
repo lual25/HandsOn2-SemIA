@@ -12,14 +12,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class Individual {
     int a;
     int b;
-    int[][] info = {{23, 661}, {26, 661}, {30, 661},{34, 661},{43, 661},{48, 661},{52, 661},{57, 661},{58, 661}};
+    int[][] info = {{23, 651}, {26, 762}, {30, 856},{34, 1063},{43, 1190},{48, 1298},{52, 1421},{57, 1440},{58, 1518}};
     int fitness;
     boolean elitism;
     Individual()
     {
         a=randomGen();
         b=randomGen();
-        selectFitness();
+        selectFitness(info.length);
     }
     String getIndividual()
     {
@@ -35,14 +35,14 @@ public final class Individual {
     }
     int randomGen()
     {
-        return ThreadLocalRandom.current().nextInt(0, 1000 + 1); 
+        return ThreadLocalRandom.current().nextInt(0, 200 + 1); 
 
     }
     void printIndividual()
     {
-        System.out.println("a= "+a+" b= "+b+" Fitness: "+fitness);
+        System.out.println("a= "+a+" b= "+b+" Fitness: "+fitness+" Elitism "+elitism);
     }
-    int selectFitness()
+    int selectFitness(int population)
     {
         int sum = 0;
         for(int i=0; i<info.length; i++)
@@ -50,9 +50,9 @@ public final class Individual {
                 int x=info[i][0];
                 int y=info[i][1];
                 int y1=a+(b*x);
-                int dif = y1-y;
+                int dif = (y-y1)/population;
                 if(dif<0)
-                    dif=dif*(-1);
+                    dif=dif*-1;
                 sum+=dif;
         }
         fitness=sum;
@@ -62,13 +62,22 @@ public final class Individual {
     {
         return fitness;
     }
-    void crossOver(Individual parent1, Individual parent2, int mutationRate)
+    void crossOver(Individual parent, int mutationRate)
     {
-        String[] aBinary = {Integer.toBinaryString(parent1.getA()), Integer.toBinaryString(parent2.getA())};
-        String[] bBinary = {Integer.toBinaryString(parent1.getB()), Integer.toBinaryString(parent2.getB())};
+        String[] aBinary = {Integer.toBinaryString(a), Integer.toBinaryString(parent.getA())};
+        String[] bBinary = {Integer.toBinaryString(b), Integer.toBinaryString(parent.getB())};
         aBinary=fillUpString(aBinary);
         bBinary=fillUpString(bBinary);
-        StringBuilder aChildren= new StringBuilder(aBinary[0]);
+        String aChildren;
+        int crossoverpoint = ThreadLocalRandom.current().nextInt(0, aBinary.length-1 + 1);
+        aChildren = aBinary[1].substring(0, crossoverpoint) + aBinary[0].substring(crossoverpoint);
+        String bChildren;
+        crossoverpoint = ThreadLocalRandom.current().nextInt(0, bBinary.length-1 + 1);
+        bChildren = bBinary[1].substring(0, crossoverpoint) + bBinary[0].substring(crossoverpoint);
+        a = Integer.parseInt(aChildren, 2);
+        b=Integer.parseInt(bChildren, 2);
+        selectFitness(info.length);
+        /*StringBuilder aChildren= new StringBuilder(aBinary[0]);
         StringBuilder bChildren= new StringBuilder(bBinary[0]);
         for(int i=0; i<aBinary[0].length(); i++)
             if(mutationRate<ThreadLocalRandom.current().nextInt(0, 100 + 1))
@@ -82,7 +91,17 @@ public final class Individual {
             }
         a=Integer.parseInt(aChildren.toString(), 2);
         b=Integer.parseInt(bChildren.toString(), 2);
-        selectFitness();
+        selectFitness(info.length);*/
+    }
+    String fill8Bin(String bin)
+    {
+        String s = "";
+        for(int i = bin.length();i<8;i++)
+        {
+            s+="0";
+        }
+        return s+bin;
+        
     }
     void setElitism(boolean el)
     {
@@ -114,22 +133,45 @@ public final class Individual {
             return strings;
         }
     }
-    /*String mutation(int mutationRate)
+  
+
+    void mutation()
     {
-        StringBuilder aux = new StringBuilder(individual);
-        for(int i=0; i<aux.length(); i++)
+        String aBinary = fill8Bin(Integer.toBinaryString(a));
+        String bBinary = fill8Bin(Integer.toBinaryString(b));
+        StringBuilder auxA = new StringBuilder(aBinary);
+        StringBuilder auxB = new StringBuilder(bBinary);
+        for(int i=0; i<auxA.length(); i++)
         {
-            if(mutationRate<=ThreadLocalRandom.current().nextInt(0, 100 + 1))
+            if(i>=ThreadLocalRandom.current().nextInt(0, auxA.length()-1 + 1))
             {
-                if(aux.charAt(i)=='0')
+                if(auxA.charAt(i)=='0')
                 {
-                    aux.setCharAt(i, '1');
+                    auxA.setCharAt(i, '1');
                 }
                 else
-                    aux.setCharAt(i, '0');
+                    auxA.setCharAt(i, '0');
 
             }
         }
-        return aux.toString();
-    }*/
+        for(int i=0; i<auxB.length(); i++)
+        {
+            if(i>=ThreadLocalRandom.current().nextInt(0, auxB.length()-1 + 1))
+            {
+                if(auxB.charAt(i)=='0')
+                {
+                    auxB.setCharAt(i, '1');
+                }
+                else
+                    auxB.setCharAt(i, '0');
+
+            }
+        }
+        a=Integer.parseInt(auxA.toString(), 2);
+        b=Integer.parseInt(auxB.toString(), 2);
+}
+    String getFuntion()
+    {
+        return "y="+a+"+"+b+"x";
+    }
 }
