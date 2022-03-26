@@ -15,6 +15,13 @@ public final class Individual {
     int[][] info = {{23, 651}, {26, 762}, {30, 856},{34, 1063},{43, 1190},{48, 1298},{52, 1421},{57, 1440},{58, 1518}};
     int fitness;
     boolean elitism;
+    Individual(int[][] info)
+    {
+        this.info = info;
+        a=randomGen();
+        b=randomGen();
+        selectFitness(info.length);
+    }
     Individual()
     {
         a=randomGen();
@@ -174,4 +181,5 @@ public final class Individual {
     {
         return "y="+a+"+"+b+"x";
     }
+
 }
